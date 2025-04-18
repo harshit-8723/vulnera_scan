@@ -1,0 +1,95 @@
+# Python/FastAPI Backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+develop-eggs/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+.venv/
+ENV/
+backend/venv/
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Dependency Directories
+pipenv/
+poetry/
+
+# Testing/Coverage
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Migrations
+migrations/
+
+# Editor Directories and Files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*~
+
+# OS-Specific Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Miscellaneous
+*.bak
+*.swp
+*.swo
+*.tmp
+*.pid
+*.seed
+*.pid.lock
+*.sqlite3
+*.db
+
+# Documentation Builds
+docs/_build/
+_site/
+
+# Sensitive Files
+secrets/
+credentials/
+*.key
+*.pem
+*.crt
+*.cert
