@@ -3,5 +3,5 @@ from typing import Dict, List
 
 class ScanResult(BaseModel):
     url: str
-    vulnerabilities: Dict[str, List[str]]
     urls : List[str] # reutrn all fetched urls
+    vulnerabilities: Dict[str, List[str]]

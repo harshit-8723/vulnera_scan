@@ -1,27 +1,36 @@
-from scrapy.crawler import CrawlerProcess
+from scrapy.crawler import CrawlerRunner
 from app.spiders.website_spider import WebsiteSpider
+import asyncio
 
 class CustomCrawler:
-    def __init__(self, target_url):
+    def __init__(self, target_url : str):
         self.target_url = target_url
-        self.collected_urls = []
+        self.found_urls = set[]
 
-    def run(self):
-        
+    async def run(self):
         # configure Scrapy settings
-        process = CrawlerProcess(settings={
+        settings = CrawlerRunner(settings={
             "LOG_ENABLED": True,
-            "LOG_LEVEL": "INFO",  # keep logs clean
+            "LOG_LEVEL": "INFO", # sets the log level 
             "USER_AGENT": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
             "DOWNLOAD_DELAY": 1.0,  # avoid overloading server
             "CONCURRENT_REQUESTS": 4  # balance speed and stability
         })
         
-        # run spider with target URL
-        crawler = process.crawl(WebsiteSpider, target_url=self.target_url)
-        process.start()
+        # initializeing the crawler runner
+        runner = CrawlerRunner(settings)
 
-        # get URLs from the spider instance
-        spider = crawler.spider
-        self.collected_urls = spider.custom_urls
-        return self.collected_urls
+        # callback to collect urls;
+        def collect_urls(item, response, spider):
+            self.found_urls.add(item["url"])
+
+        #configure and run the spider
+        crawl = runner.crawl(
+            WebsiteSpider,
+            start_url = self.target_url,
+            callback = collect_urls
+        )
+
+        #wait for the crawl to complete it process
+        await crawl
+        return self.found_urls
