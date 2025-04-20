@@ -23,7 +23,7 @@ async def scan_website(input_data: WebsiteInput):
 
     # this runs the custom crawler with the given URL
     try:
-        crawler = CustomCrawler(target_url)
+        crawler = CustomCrawler(target_url, timeout = 10.0)
         found_urls = await crawler.run()
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Crawler error: {str(e)}")
