@@ -1,5 +1,5 @@
 import scrapy
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 class WebsiteSpider(scrapy.Spider):
     name = "website_spider"
@@ -17,36 +17,30 @@ class WebsiteSpider(scrapy.Spider):
     # added this to store all URLs for returning to scanner
     custom_urls = []
 
-    def __init__(self, target_url=None, *args, **kwargs):
+    def __init__(self, start_url=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if target_url:
-            self.start_urls = [str(target_url)]
-            self.allowed_domains = [str(target_url).split("//")[-1].split("/")[0]]
-        # initialize lists for URLs
+        self.start_urls = [start_url] if start_url else []
+        # urlparse().netloc is used to get name of site removing http 
+        # like wikipedia.org not http://wikipedia.org
+        self.allowed_domains = [urlparse(start_url).netloc] if start_url else []
         self.visited_links = set()
-        self.custom_urls = []
 
     # function that will be called when the response comes back
     def parse(self, response):
-        # this gets all the anchor tag and go to href and get all 
-        # the links from there and gives an array 
+        # Extract all href attributes from anchor tags
         all_links = response.css("a::attr(href)").getall()
-        
         for link in all_links:
             absolute_url = response.urljoin(link)
-            # self is written as variables that belong to the class must be accessed though self
-            if absolute_url in self.visited_links: 
+            # Skip if already visited or not in allowed domains
+            if absolute_url in self.visited_links:
                 continue
             self.visited_links.add(absolute_url)
-            self.custom_urls.append(absolute_url)
-
-            # used yield here so that scrapy follows the these links too
-            yield response.follow(link, callback=self.parse)
-
-        # added this to collect form action URLs
-        forms = response.xpath("//form/@action").getall()
-        for form_action in forms:
-            absolute_form_url = urljoin(response.url, form_action)
-            if absolute_form_url not in self.visited_links:
-                self.visited_links.add(absolute_form_url)
-                self.custom_urls.append(absolute_form_url)
+            yield {
+                "url": absolute_url
+            }
+            # Follow the link for recursive crawling
+            yield response.follow(
+                link,
+                callback=self.parse,
+                meta={"dont_redirect": True}
+            )
