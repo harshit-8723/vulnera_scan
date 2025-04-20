@@ -5,7 +5,7 @@ import asyncio
 class CustomCrawler:
     def __init__(self, target_url : str):
         self.target_url = target_url
-        self.found_urls = set[]
+        self.found_urls = set()
 
     async def run(self):
         # configure Scrapy settings
