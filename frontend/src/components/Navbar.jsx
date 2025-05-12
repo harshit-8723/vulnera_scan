@@ -1,32 +1,79 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Box, Flex, Button, IconButton, Menu, MenuButton, MenuList, MenuItem, Heading } from "@chakra-ui/react";
-import { Menu as MenuIcon, Shield } from "lucide-react";
+import {
+    Container,
+    Flex,
+    Text,
+    HStack,
+    Button,
+    useColorMode,
+    useColorModeValue,
+    Box,
+} from "@chakra-ui/react";
+import { Link, useLocation } from "react-router-dom";
+import { IoMoon } from "react-icons/io5";
+import { LuSun } from "react-icons/lu";
+import { Shield } from "lucide-react";
 
 const Navbar = () => {
+    const { colorMode, toggleColorMode } = useColorMode();
+    const location = useLocation();
+
+    const isActive = (path) => location.pathname === path;
+
+    // Background color and shadow for better contrast in light mode
+    const navbarBg = useColorModeValue("blue.50", "gray.700");
+    const navbarShadow = useColorModeValue("md", "none");
+
     return (
-        <Box as="nav" bg="blue.500" color="white" px={4} py={3} shadow="md">
-            <Flex maxW="7xl" mx="auto" align="center" justify="space-between">
-                <Link to="/">
-                    <Flex align="center">
-                        <Shield size={24} />
-                        <Heading as="h1" size="md" ml={2}>SecureWatch</Heading>
-                    </Flex>
-                </Link>
-                <Flex display={{ base: "none", md: "flex" }} align="center">
-                    <Button as={Link} to="/auth" variant="ghost" colorScheme="whiteAlpha" mr={2}>Login</Button>
-                    <Button as={Link} to="/auth" variant="solid" colorScheme="whiteAlpha">Sign Up</Button>
+        <Box bg={navbarBg} boxShadow={navbarShadow} py={2}>
+            <Container maxW={"1280px"} px={4}>
+                <Flex
+                    h={16}
+                    alignItems={"center"}
+                    justifyContent={"space-between"}
+                    flexDir={{
+                        base: "column",
+                        sm: "row",
+                    }}
+                >
+                    <Text
+                        fontSize={{ base: "22", sm: "28" }}
+                        fontWeight={"bold"}
+                        textTransform={"uppercase"}
+                        textAlign={"center"}
+                        bgGradient={"linear(to-r, blue.500, blue.300)"}
+                        bgClip={"text"}
+                    >
+                        <Link to={"/"}>
+                            <Flex align="center" gap={2}>
+                                <Shield size={22} />
+                                SecureWatch
+                            </Flex>
+                        </Link>
+                    </Text>
+
+                    <HStack spacing={2} alignItems={"center"}>
+                        {[
+                            { path: "/", label: "Home" },
+                            { path: "/about", label: "About" },
+                            { path: "/signUp", label: "Sign Up" },
+                            { path: "/signIn", label: "Sign In" },
+                        ].map((link) => (
+                            <Link to={link.path} key={link.path}>
+                                <Button
+                                    colorScheme={isActive(link.path) ? "blue" : "gray"}
+                                    variant={isActive(link.path) ? "solid" : "ghost"}
+                                >
+                                    {link.label}
+                                </Button>
+                            </Link>
+                        ))}
+
+                        <Button onClick={toggleColorMode} aria-label="Toggle Color Mode">
+                            {colorMode === "light" ? <IoMoon /> : <LuSun />}
+                        </Button>
+                    </HStack>
                 </Flex>
-                <Box display={{ base: "block", md: "none" }}>
-                    <Menu>
-                        <MenuButton as={IconButton} icon={<MenuIcon size={24} />} variant="outline" colorScheme="whiteAlpha" />
-                        <MenuList bg="blue.500" color="white">
-                            <MenuItem as={Link} to="/auth">Login</MenuItem>
-                            <MenuItem as={Link} to="/auth">Sign Up</MenuItem>
-                        </MenuList>
-                    </Menu>
-                </Box>
-            </Flex>
+            </Container>
         </Box>
     );
 };
