@@ -1,21 +1,34 @@
 import React from "react";
-import { Box, Button, Heading, Text } from "@chakra-ui/react";
+import { ChakraProvider, Box } from "@chakra-ui/react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import Navbar from "./components/Navbar.jsx";
+import Index from "./pages/Index.jsx";
+import Auth from "./pages/Auth.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
 
-function App() {
-  return (
-    <>
-    <h1 className='text-5xl bg-blue-800 underline flex justify-center p-8'>Hello World!!</h1>
-    <Box p={6} bg="gray.50" minH="100vh">
-      <Heading mb={4}>Hello from Chakra UI</Heading>
-      <Text fontSize="lg" mb={4}>
-        Chakra UI is working correctly!
-      </Text>
-      <Button colorScheme="teal" size="lg">
-        Click Me
-      </Button>
-    </Box>
-    </>
-  );
-}
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) return <Navigate to="/auth" replace />;
+  return children;
+};
+
+
+
+const App = () => (
+  <ChakraProvider>
+    <AuthProvider>
+      <BrowserRouter>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="*" element={<Box p={6}>Page Not Found</Box>} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  </ChakraProvider>
+);
 
 export default App;
