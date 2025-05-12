@@ -13,11 +13,10 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import service from "../appwrite/appwriteUserAuth.js";
 
 const SignUp = () => {
   const navigate = useNavigate();
-  const { signup, isLoading } = useAuth();
 
   // Signup State
   const [signupName, setSignupName] = useState("");
@@ -31,15 +30,19 @@ const SignUp = () => {
     confirmPassword: "",
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const validateSignupForm = () => {
     let valid = true;
     const newErrors = { name: "", email: "", password: "", confirmPassword: "" };
 
+    // Validate Name
     if (!signupName) {
       newErrors.name = "Name is required";
       valid = false;
     }
 
+    // Validate Email
     if (!signupEmail) {
       newErrors.email = "Email is required";
       valid = false;
@@ -48,6 +51,7 @@ const SignUp = () => {
       valid = false;
     }
 
+    // Validate Password
     if (!signupPassword) {
       newErrors.password = "Password is required";
       valid = false;
@@ -56,20 +60,51 @@ const SignUp = () => {
       valid = false;
     }
 
+    // Validate Confirm Password
     if (signupPassword !== signupConfirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
       valid = false;
     }
 
+    // Update errors state and return validity
     setSignupErrors(newErrors);
+
     return valid;
   };
 
   const handleSignup = async (e) => {
     e.preventDefault();
+
+    // Log form values to check what user entered
+    console.log("SignUp Form Values:");
+    console.log("Name:", signupName);
+    console.log("Email:", signupEmail);
+    console.log("Password:", signupPassword);
+    console.log("Confirm Password:", signupConfirmPassword);
+
     if (validateSignupForm()) {
-      await signup(signupName, signupEmail, signupPassword);
-      navigate("/dashboard");
+      setIsSubmitting(true);
+      try {
+        // Use Appwrite service to create a user account
+        const userAccount = await service.createAccount({
+          name: signupName,
+          email: signupEmail,
+          password: signupPassword,
+        });
+
+        if (userAccount.$id) {
+          console.log("Signup successful:", userAccount);
+          navigate("/dashboard"); // Redirect to the dashboard 
+        } else if (userAccount.err) {
+          console.error("Error creating user account:", userAccount.message);
+        }
+      } catch (error) {
+        console.error("Signup failed:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      console.log("Form validation failed");
     }
   };
 
@@ -143,7 +178,7 @@ const SignUp = () => {
             type="submit"
             colorScheme="blue"
             width="full"
-            isLoading={isLoading}
+            isLoading={isSubmitting}
             mt={4}
             spinner={<Spinner size="sm" />}
           >

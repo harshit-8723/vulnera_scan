@@ -14,7 +14,7 @@ import HomePage from "./pages/HomePage.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <Navigate to="/auth" replace />;
+  if (!isAuthenticated) return <Navigate to="/signIn" replace />;
   return children;
 };
 
