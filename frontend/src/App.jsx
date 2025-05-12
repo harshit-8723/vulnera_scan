@@ -3,6 +3,7 @@ import { ChakraProvider, Box } from "@chakra-ui/react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx";
 import Index from "./pages/Index.jsx";
 import Auth from "./pages/Auth.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/signIn" element={<SignIn />} />
           <Route path="*" element={<Box p={6}>Page Not Found</Box>} />
         </Routes>
+        <Footer />
       </BrowserRouter>
     </AuthProvider>
   </ChakraProvider>

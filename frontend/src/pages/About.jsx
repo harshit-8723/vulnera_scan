@@ -33,7 +33,7 @@ const About = () => {
                     ease and efficiency—before attackers do.
                 </Text>
                 <Image
-                    src="vulnerascanImage.jpeg"
+                    src="vulnerascanImage.png"
                     alt="VulneraScan Overview"
                     borderRadius="lg"
                     shadow="md"

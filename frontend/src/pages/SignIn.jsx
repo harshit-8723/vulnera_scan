@@ -57,13 +57,13 @@ const SignIn = () => {
   };
 
   return (
-    <Center h="100vh" bg={useColorModeValue("gray.50", "gray.800")}>
+    <Center h="100vh" bg={useColorModeValue("gray.100", "gray.700")}>
       <Box
         as="form"
         onSubmit={handleLogin}
         w={["full", "md"]}
         p={8}
-        bg={useColorModeValue("white", "gray.700")}
+        bg={useColorModeValue("white", "gray.800")}
         boxShadow="xl"
         borderRadius="lg"
         maxW="400px"

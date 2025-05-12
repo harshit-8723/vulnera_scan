@@ -20,7 +20,7 @@ const Navbar = () => {
     const isActive = (path) => location.pathname === path;
 
     // Background color and shadow for better contrast in light mode
-    const navbarBg = useColorModeValue("blue.50", "gray.700");
+    const navbarBg = useColorModeValue("blue.50", "gray.800");
     const navbarShadow = useColorModeValue("md", "none");
 
     return (
