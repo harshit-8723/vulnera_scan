@@ -11,22 +11,21 @@ import {
   Text,
   VStack,
   Center,
-  useBreakpointValue,
   useColorModeValue,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const { login, isLoading } = useAuth();
+  const { login, updateUserData } = useAuth(); 
 
   // Login State
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginErrors, setLoginErrors] = useState({ email: "", password: "" });
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Validate Login Form
   const validateLoginForm = () => {
     let valid = true;
     const newErrors = { email: "", password: "" };
@@ -50,9 +49,25 @@ const SignIn = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    if (validateLoginForm()) {
-      await login(loginEmail, loginPassword);
-      navigate("/dashboard");
+    if (!validateLoginForm()) return;
+
+    try {
+      setIsLoading(true);
+      const response = await login({
+        email: loginEmail,
+        password: loginPassword,
+      });
+
+      if (response?.$id) {
+        updateUserData(response); // store user info
+        navigate(`/dashboard/${response.userId}`);
+      } else if (response?.err) {
+        alert(`Login failed: ${response.message}`);
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
