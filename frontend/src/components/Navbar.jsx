@@ -46,7 +46,7 @@ const Navbar = () => {
                         <Link to={"/"}>
                             <Flex align="center" gap={2}>
                                 <Shield size={22} />
-                                SecureWatch
+                                VulneraScan
                             </Flex>
                         </Link>
                     </Text>
