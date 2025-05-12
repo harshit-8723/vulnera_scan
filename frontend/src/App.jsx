@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import About from "./pages/About.jsx";
 import SignIn from "./pages/SignIn.jsx";
 import SignUp from "./pages/SingUp.jsx";
+import HomePage from "./pages/HomePage.jsx";
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -24,7 +25,7 @@ const App = () => (
       <BrowserRouter>
         <Navbar />
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/about" element={<About />} />
