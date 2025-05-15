@@ -2,8 +2,8 @@ import httpx
 import logging
 import asyncio
 from typing import List, Dict, AsyncGenerator
-from app.services.sql_payloads import BASIC_SQL_PAYLOADS, UNION_SQL_PAYLOADS, ERROR_SQL_PAYLOADS, TIME_SQL_PAYLOADS
-from app.services.xss_payloads import REFLECTED_XSS_PAYLOADS, STORED_XSS_PAYLOADS, DOM_XSS_PAYLOADS, ATTRIBUTE_XSS_PAYLOADS
+from backend.app.payloads.sql_payloads import BASIC_SQL_PAYLOADS, UNION_SQL_PAYLOADS, ERROR_SQL_PAYLOADS, TIME_SQL_PAYLOADS
+from backend.app.payloads.xss_payloads import REFLECTED_XSS_PAYLOADS, STORED_XSS_PAYLOADS, DOM_XSS_PAYLOADS, ATTRIBUTE_XSS_PAYLOADS
 
 logger = logging.getLogger(__name__)
 

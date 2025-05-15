@@ -1,6 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from app.models.requests import WebsiteInput
 from app.services.crawler import CustomCrawler
+from app.helper.query_url_filter import filter_query_urls
+from app.services.sql_scanner import sql_vulnerability_scan
+from app.services.xss_scanner import xss_vulnerability_scan
 from urllib.parse import urlparse
 import logging
 
@@ -22,23 +25,63 @@ async def read_root():
     logger.info("Received request to root endpoint")
     return {"message": "Website link crawler"}
 
-@app.post("/scan")
-async def scan_website(input_data: WebsiteInput):
-    logger.info(f"Received scan request for URL: {input_data.url}")
+@app.post("/api/sql_scan")
+async def sql_scan(input_data: WebsiteInput):
     target_url = str(input_data.url)
+    logger.info(f"Received SQL scan request for URL: {target_url}")
     
-    # Validate URL scheme
     parsed = urlparse(target_url)
-    if not parsed.scheme in ('http', 'https'):
+    if parsed.scheme not in ('http', 'https'):
         logger.error(f"Invalid URL scheme for {target_url}")
         raise HTTPException(status_code=400, detail="Invalid URL scheme. Use http or https.")
-    
+
     try:
         crawler = CustomCrawler(target_url, timeout=30.0)
         found_urls = await crawler.run()
         logger.info(f"Crawler completed for {target_url}, found {len(found_urls)} URLs")
+
+        query_urls = filter_query_urls(found_urls)
+        logger.info(f"Filtered {len(query_urls)} URLs with query parameters")
+        for url in query_urls:
+            logger.info(f"url : {url}")
+
+        # scan_results = await scan_sql_injection(query_urls)
+        # Because sql_vulnerability_scan is an async generator, you need to collect results from it:
+        scan_results = []
+        async for event in sql_vulnerability_scan(query_urls):
+            if event.get("event") == "result":
+                scan_results.append(event["data"])
+
+        return {"url": target_url, "results": scan_results}
+
     except Exception as e:
-        logger.error(f"Crawler error for {target_url}: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Crawler error: {str(e)}")
-    
-    return {"url": target_url, "urls": found_urls}
+        logger.error(f"SQL scan error for {target_url}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"SQL scan error: {str(e)}")
+
+@app.post("/api/xss_scan")
+async def xss_scan(input_data: WebsiteInput):
+    target_url = str(input_data.url)
+    logger.info(f"Received XSS scan request for URL: {target_url}")
+
+    parsed = urlparse(target_url)
+    if parsed.scheme not in ('http', 'https'):
+        logger.error(f"Invalid URL scheme for {target_url}")
+        raise HTTPException(status_code=400, detail="Invalid URL scheme. Use http or https.")
+
+    try:
+        crawler = CustomCrawler(target_url, timeout=30.0)
+        found_urls = await crawler.run()
+        logger.info(f"Crawler completed for {target_url}, found {len(found_urls)} URLs")
+
+        query_urls = filter_query_urls(found_urls)
+        logger.info(f"Filtered {len(query_urls)} URLs with query parameters")
+
+        scan_results = []
+        async for event in xss_vulnerability_scan(query_urls):
+            if event.get("event") == "result":
+                scan_results.append(event["data"])
+        return {"url": target_url, "results": scan_results}
+
+    except Exception as e:
+        logger.error(f"XSS scan error for {target_url}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"XSS scan error: {str(e)}")
