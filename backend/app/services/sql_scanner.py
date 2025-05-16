@@ -1,6 +1,5 @@
 import httpx
 import logging
-import asyncio
 from typing import List, Dict, AsyncGenerator
 from app.payloads.sql_payloads import SQLI_PAYLOADS
 
@@ -8,7 +7,6 @@ logger = logging.getLogger(__name__)
 
 async def sql_vulnerability_scan(
     urls: List[str],
-    timeout: float = 60.0,
     max_urls: int = 5,
     max_payloads: int = 5
 ) -> AsyncGenerator[Dict, None]:
@@ -17,13 +15,8 @@ async def sql_vulnerability_scan(
 
     async with httpx.AsyncClient(timeout=10.0) as client:
         try:
-            async for event in asyncio.wait_for(
-                _scan_sql(test_urls, client, max_payloads),
-                timeout=timeout
-            ):
+            async for event in _scan_sql(test_urls, client, max_payloads):
                 yield event
-        except asyncio.TimeoutError:
-            yield {"event": "progress", "message": f"Timeout after {timeout} seconds"}
         except Exception as e:
             yield {"event": "error", "message": f"SQL scanner error: {str(e)}"}
 
@@ -45,7 +38,6 @@ async def _scan_sql(
             try:
                 response = await client.get(test_url)
 
-                # Detailed logging
                 logger.info(f"Testing URL: {test_url}")
                 logger.info(f"Payload used: {payload}")
                 logger.info(f"Response code: {response.status_code}")
@@ -71,6 +63,7 @@ async def _scan_sql(
                 if found:
                     logger.info(f"SQL Injection found at {test_url}")
                     yield {"event": "result", "data": result}
+                    break # stops testing further payload for this url
                 else:
                     logger.info(f"No SQL Injection found for: {test_url}")
 
