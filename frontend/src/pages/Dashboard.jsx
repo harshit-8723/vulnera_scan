@@ -45,18 +45,7 @@ const Dashboard = () => {
           Welcome back, User
         </Text>
       </VStack>
-
-      {/* New Scan Button */}
-      <Button
-        onClick={() => navigate("/dashboard")}
-        leftIcon={<Shield className="mr-2 h-5 w-5" />}
-        colorScheme="blue"
-        variant="solid"
-        mb={8}
-      >
-        New Scan
-      </Button>
-
+      
       {/* Overview Cards */}
       <Grid templateColumns={{ base: "1fr", md: "1fr 1fr", lg: "1fr 1fr 1fr 1fr" }} gap={6} mb={8}>
         <Card>

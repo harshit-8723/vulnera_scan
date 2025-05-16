@@ -18,7 +18,7 @@ import { useAuth } from "../context/AuthContext";
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const { login, updateUserData } = useAuth(); 
+  const { login, setUser } = useAuth(); 
 
   // Login State
   const [loginEmail, setLoginEmail] = useState("");
@@ -59,7 +59,7 @@ const SignIn = () => {
       });
 
       if (response?.success) {
-        updateUserData(response); // store user info
+        setUser(response); // store user info
         navigate(`/dashboard/${response.userId}`);
       } else if (response?.err) {
         alert(`Login failed: ${response.message}`);

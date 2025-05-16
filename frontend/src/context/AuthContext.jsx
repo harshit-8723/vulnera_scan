@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
         setSessionCookie(session);
         setIsAuthenticated(true);
         toast({ title: "Login successful", status: "success" });
-        return { success: true };
+        return { success: true, userId: userData.$id };
       } else {
         throw new Error(session?.message || "Login failed");
       }
@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, sessionCookie, isAuthenticated, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, sessionCookie, isAuthenticated, setUser, login, signup, logout }}>
       {!loading && children}
     </AuthContext.Provider>
   );
