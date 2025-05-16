@@ -5,7 +5,9 @@ from app.helper.query_url_filter import filter_query_urls
 from app.services.sql_scanner import sql_vulnerability_scan
 from app.services.xss_scanner import xss_vulnerability_scan
 from urllib.parse import urlparse
+from app.helper.gather_recon_info import gather_recon_info
 import logging
+from typing import Dict
 
 # Configure logging
 logging.basicConfig(
@@ -85,3 +87,12 @@ async def xss_scan(input_data: WebsiteInput):
     except Exception as e:
         logger.error(f"XSS scan error for {target_url}: {str(e)}")
         raise HTTPException(status_code=500, detail=f"XSS scan error: {str(e)}")
+    
+
+@app.get("/api/get_info")
+async def get_info(url: str):
+    try:
+        data: Dict = await gather_recon_info(url)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
