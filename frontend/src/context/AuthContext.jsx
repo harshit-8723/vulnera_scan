@@ -8,10 +8,19 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [sessionCookie, setSessionCookie] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // loading state added to delay until session is restored
+  const [loading, setLoading] = useState(true); 
+
   const toast = useToast();
 
   const login = async ({ email, password }) => {
     try {
+      // check if alredy logged in and the session is created 
+      const existingSession = await service.getSession();
+      if(existingSession?.$id){
+        throw new Error("You're already logged in.");
+      }
+
       const session = await service.login({ email, password });
       if (session?.$id) {
         const userData = await service.getCurrentUser();
@@ -67,6 +76,8 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (err) {
       console.error("Session error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -76,7 +87,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, sessionCookie, isAuthenticated, login, signup, logout }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   );
 };

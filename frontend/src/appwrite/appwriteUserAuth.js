@@ -72,6 +72,18 @@ export class AuthService {
       return null; // No session (user not logged in)
     }
   }
+
+  // to get the session 
+  async getSession(){
+    try {
+      const sessions = await this.account.getSession('current');
+      return sessions;
+    } catch (err) {
+      console.error("No active session:", err.message);
+      return null;
+    }
+  }
+  
 }
 
 const service = new AuthService();

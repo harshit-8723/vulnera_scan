@@ -13,7 +13,7 @@ import { IoMoon } from "react-icons/io5";
 import { LuSun } from "react-icons/lu";
 import { Shield } from "lucide-react";
 import { FaSignOutAlt } from "react-icons/fa";
-import { useAuth } from "../context/AuthContext"; 
+import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
     const { colorMode, toggleColorMode } = useColorMode();
@@ -21,7 +21,7 @@ const Navbar = () => {
     const navigate = useNavigate();
 
     // Use AuthContext to access user, session and authentication status
-    const { sessionCookie, isAuthenticated, logout } = useAuth();
+    const { user, sessionCookie, isAuthenticated, logout } = useAuth();
 
     const isActive = (path) => location.pathname === path;
 
@@ -46,6 +46,7 @@ const Navbar = () => {
                     }}
                 >
                     <Text
+                        as="div" 
                         fontSize={{ base: "22", sm: "28" }}
                         fontWeight={"bold"}
                         textTransform={"uppercase"}
@@ -61,12 +62,13 @@ const Navbar = () => {
                         </Link>
                     </Text>
 
+
                     <HStack spacing={2} alignItems={"center"}>
                         {[
                             { path: "/", label: "Home", show: true },
                             { path: "/about", label: "About", show: true },
                             {
-                                path: sessionCookie ? `/dashboard/${sessionCookie["$id"]}` : "#",
+                                path: user ? `/dashboard/${user.$id}` : "#",
                                 label: "Dashboard",
                                 show: isAuthenticated,
                             },

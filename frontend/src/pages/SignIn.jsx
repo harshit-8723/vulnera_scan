@@ -58,7 +58,7 @@ const SignIn = () => {
         password: loginPassword,
       });
 
-      if (response?.$id) {
+      if (response?.success) {
         updateUserData(response); // store user info
         navigate(`/dashboard/${response.userId}`);
       } else if (response?.err) {
