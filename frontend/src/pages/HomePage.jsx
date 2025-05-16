@@ -15,8 +15,10 @@ import {
   import { useNavigate } from "react-router-dom";
   import { FaChevronDown, FaChevronUp } from "react-icons/fa";
   import { useState } from "react";
+  import { useAuth } from "../context/AuthContext";
   
   const HomePage = () => {
+    const { user } = useAuth();
     const [openFaqIndex, setOpenFaqIndex] = useState(null);
     const navigate = useNavigate();
   
@@ -71,7 +73,7 @@ import {
               <Button
                 colorScheme="blue"
                 size="lg"
-                onClick={() => navigate("/scan")}
+                onClick={() => navigate(user ? `/dashboard/${user.$id}`: "#")}
               >
                 Start a Scan
               </Button>
