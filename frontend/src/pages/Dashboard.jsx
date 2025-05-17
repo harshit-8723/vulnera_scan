@@ -18,7 +18,9 @@ import {
   ListItem,
 } from "@chakra-ui/react";
 import { Search, AlertTriangle, AlertCircle } from "lucide-react";
-import {fetchSiteInfo} from "../api/getInfo.js";
+import { fetchSiteInfo } from "../api/getInfo.js";
+import SQLInjection from "../components/SQLInjection.jsx";
+import XSSInjection from "../components/XSSInjection.jsx";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -348,6 +350,10 @@ const Dashboard = () => {
           </Card>
         </SimpleGrid>
       )}
+
+      {/* section for sql in xss  */}
+      <SQLInjection />
+      <XSSInjection />
 
       {/* Scan History Section */}
       <Box mb={8}>
