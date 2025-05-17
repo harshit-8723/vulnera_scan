@@ -91,13 +91,16 @@ async def xss_scan(url: str):
         raise HTTPException(status_code=400, detail="Invalid URL scheme. Use http or https.")
 
     try:
+        # first crawling the site and getting the urls
         crawler = CustomCrawler(url, timeout=30.0)
         found_urls = await crawler.run()
         logger.info(f"Crawler completed for {url}, found {len(found_urls)} URLs")
 
+        # now filtering the url and only keeping the one with the query parameters
         query_urls = filter_query_urls(found_urls)
         logger.info(f"Filtered {len(query_urls)} URLs with query parameters")
 
+        
         scan_results = []
         async for event in xss_vulnerability_scan(query_urls):
             if event.get("event") == "result":
