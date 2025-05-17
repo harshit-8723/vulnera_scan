@@ -32,7 +32,7 @@ import TotalScansCard from "../components/cards/TotalScansCard.jsx";
 import CriticalHighCard from "../components/cards/CriticalHighCard.jsx";
 import MediumCard from "../components/cards/MediumCard.jsx";
 import LowCard from "../components/cards/LowCard.jsx";
-import QuickScanForm from "../components/QuickScanForm.jsx";
+// import QuickScanForm from "../components/QuickScanForm.jsx";
 
 const Dashboard = () => {
   const navigate = useNavigate();
