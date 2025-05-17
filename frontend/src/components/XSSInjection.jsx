@@ -4,26 +4,11 @@ import {
     Box, Input, Button, VStack, Heading, Spinner,
     Text, List, ListItem, useColorModeValue,
 } from "@chakra-ui/react";
+import { scanXSSInjection } from "../api/getInfo";
 
 const XSSInjection = () => {
     const [url, setUrl] = useState("");
-    const [results, setResults] = useState({
-        url: "http://example.com/search?q=test",
-        results: [
-            {
-                url: "http://example.com/search?q=<script>alert(1)</script>",
-                payload: "<script>alert(1)</script>",
-                vulnerability: "Cross-Site Scripting (XSS)",
-                found: true
-            },
-            {
-                url: "http://example.com/search?q=%22%3E%3Csvg/onload=alert(2)%3E",
-                payload: "\"><svg/onload=alert(2)>",
-                vulnerability: "Cross-Site Scripting (XSS)",
-                found: false
-            }
-        ]
-    });
+    const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -33,17 +18,18 @@ const XSSInjection = () => {
         setResults(null);
 
         try {
-            const response = await axios.post("/api/xss_scan", { url });
-            setResults(response.data);
+            const response = await scanXSSInjection(url);
+            // console.log(response);
+            setResults(response);
         } catch (err) {
-            setError("Failed to scan the URL.");
+            setError("Failed to scan the URL for XSS.");
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <Box p={6} bg={useColorModeValue("gray.50", "gray.700")} borderRadius="md">
+        <Box p={6} marginBottom={8} bg={useColorModeValue("gray.50", "gray.700")} borderRadius="md">
             <Heading size="md" mb={4}>XSS Scanner</Heading>
             <VStack spacing={4}>
                 <Input

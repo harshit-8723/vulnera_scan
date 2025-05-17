@@ -4,26 +4,11 @@ import {
     Box, Input, Button, VStack, Heading, Spinner,
     Text, List, ListItem, useColorModeValue,
 } from "@chakra-ui/react";
+import { scanSQLInjection } from "../api/getInfo";
 
 const SQLInjection = () => {
     const [url, setUrl] = useState("");
-    const [results, setResults] = useState({
-        url: "http://example.com/view?id=1",
-        results: [
-            {
-                url: "http://example.com/view?id=1'",
-                payload: "' OR '1'='1",
-                vulnerability: "SQL Injection",
-                found: true
-            },
-            {
-                url: "http://example.com/view?id=1'",
-                payload: "' AND 1=2--",
-                vulnerability: "SQL Injection",
-                found: false
-            }
-        ]
-    });
+    const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -33,10 +18,11 @@ const SQLInjection = () => {
         setResults(null);
 
         try {
-            const response = await axios.post("/api/sql_scan", { url });
-            setResults(response.data);
+            const response = await scanSQLInjection(url);
+            // console.log(response);
+            setResults(response);
         } catch (err) {
-            setError("Failed to scan the URL.");
+            setError("Failed to scan the URL for SQL. ");
         } finally {
             setLoading(false);
         }
