@@ -4,8 +4,6 @@ from urllib.parse import urlparse
 import whois
 import dns.resolver
 import httpx
-import ssl
-import json
 
 
 # Extract domain and IP
