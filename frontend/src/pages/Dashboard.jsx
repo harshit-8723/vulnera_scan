@@ -92,7 +92,7 @@ const Dashboard = () => {
       </VStack>
 
       {/* Overview Cards */}
-      <Grid
+      {/* <Grid
         templateColumns={{ base: "1fr", md: "1fr 1fr", lg: "1fr 1fr 1fr 1fr" }}
         gap={6}
         mb={8}
@@ -101,7 +101,7 @@ const Dashboard = () => {
         <CriticalHighCard vulnerabilityCounts={vulnerabilityCounts} />
         <MediumCard vulnerabilityCounts={vulnerabilityCounts} />
         <LowCard vulnerabilityCounts={vulnerabilityCounts} />
-      </Grid>
+      </Grid> */}
 
       {/* Quick Scan Section */}
       <Card mb={8}>
@@ -164,7 +164,7 @@ const Dashboard = () => {
       <XSSInjection />
 
       {/* Scan History Section */}
-      <Box mb={8}>
+      {/* <Box mb={8}>
         <VStack spacing={4} align="start" mb={4}>
           <Heading as="h2" size="lg" fontWeight="bold">
             Scan History
@@ -182,8 +182,8 @@ const Dashboard = () => {
             </Box>
           </Box>
         </VStack>
-        {/* I will replace this with actual table when functionality is added */}
-      </Box>
+        I will replace this with actual table when functionality is added
+      </Box> */}
     </Box>
   );
 };
