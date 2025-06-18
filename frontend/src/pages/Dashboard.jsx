@@ -76,8 +76,14 @@ const Dashboard = () => {
     try {
       const response = await getAISummaryReport(fullScanReport);
 
+      // response.data (a Markdown string) is turned into a Blob.
+      // The second argument { type: "text/markdown" } sets the MIME type to Markdown 
+      // so the browser knows it's a .md file.
       const blob = new Blob([response.data], { type: "text/markdown" });
       const url = window.URL.createObjectURL(blob);
+
+      // sets the summary file
+      setSummaryFile(url); 
 
       const link = document.createElement("a");
       link.href = url;
