@@ -86,9 +86,7 @@ Using the following scan data, generate a structured **Markdown (.md)** report t
         async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(GEMINI_API_URL, json=payload, headers=HEADERS)
     except Exception as e:
-        import traceback
         logger.error("Exception during Gemini API call:")
-        logger.error(traceback.format_exc())
         raise RuntimeError(f"HTTPX Gemini error: {str(e)}")
 
     logger.info("done with the request and got the response")
