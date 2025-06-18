@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   Button,
   Input,
@@ -14,40 +13,30 @@ import {
   Spinner,
   useColorModeValue,
   SimpleGrid,
-  List,
-  ListItem,
 } from "@chakra-ui/react";
-import { Search, AlertTriangle, AlertCircle } from "lucide-react";
-import { fetchSiteInfo } from "../api/getInfo.js";
+import { fetchSiteInfo, getAISummaryReport } from "../api/getInfo.js";
 import SQLInjection from "../components/SQLInjection.jsx";
 import XSSInjection from "../components/XSSInjection.jsx";
-import KeyValueList from "../components/KeyValueList.jsx";
 import IPInfoCard from "../components/cards/IPInfoCard.jsx";
 import DNSCard from "../components/cards/DNSCard.jsx";
 import ServerInfoCard from "../components/cards/ServerInfoCard.jsx";
 import OpenPortsCard from "../components/cards/OpenPortsCard.jsx";
 import WhoisCard from "../components/cards/WhoisCard.jsx";
 import GeneralInfoCard from "../components/cards/GeneralInfoCard.jsx";
-import TotalScansCard from "../components/cards/TotalScansCard.jsx";
-import CriticalHighCard from "../components/cards/CriticalHighCard.jsx";
-import MediumCard from "../components/cards/MediumCard.jsx";
-import LowCard from "../components/cards/LowCard.jsx";
-// import QuickScanForm from "../components/QuickScanForm.jsx";
+import { useScanData } from "../context/ScanDataContext";
 
 const Dashboard = () => {
-  const navigate = useNavigate();
   const [url, setUrl] = useState("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [vulnerabilityCounts, setvulnerabilityCounts] = useState({
-    critical: 0,
-    high: 0,
-    medium: 0,
-    low: 0,
-  });
-
   const [loading, setLoading] = useState(false);
-  const [siteData, setSiteData] = useState(null);
+  const {
+    reconData,
+    sqlScanResult,
+    xssScanResult,
+    setReconData,
+  } = useScanData();
   const [error, setError] = useState(null);
+  const [summaryFile, setSummaryFile] = useState(null);
+  const [generatingSummary, setGeneratingSummary] = useState(false);
 
   const handleNewScan = async (e) => {
     e.preventDefault();
@@ -60,11 +49,10 @@ const Dashboard = () => {
 
     setLoading(true);
     setError(null);
-    setSiteData(null);
 
     try {
       const data = await fetchSiteInfo(scanUrl);
-      setSiteData(data);
+      setReconData(data);
     } catch (err) {
       setError("Failed to fetch site info.");
       console.error(err);
@@ -73,10 +61,42 @@ const Dashboard = () => {
     }
   };
 
+  // this will handle the generate summary and get the summay of the scan 
+  const handleGenerateSummary = async () => {
+    // need all  the things then only send the response
+    if (!reconData && !sqlScanResult && !xssScanResult) return;
+
+    const fullScanReport = {
+      reconData,
+      sqlScanResult,
+      xssScanResult,
+    };
+
+    setGeneratingSummary(true);
+    try {
+      const response = await getAISummaryReport(fullScanReport);
+
+      const blob = new Blob([response.data], { type: "text/markdown" });
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "security_summary.md");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+    } catch (err) {
+      console.error("Summary generation failed", err);
+    } finally {
+      setGeneratingSummary(false);
+    }
+  };
+
+
 
   return (
     <Box maxW="7xl" mx="auto" px={{ base: 4, sm: 6, lg: 8 }} py={8}>
-      {/* Header Section */}
       <VStack spacing={4} align="start" mb={8}>
         <Heading
           as="h1"
@@ -91,19 +111,6 @@ const Dashboard = () => {
         </Text>
       </VStack>
 
-      {/* Overview Cards */}
-      {/* <Grid
-        templateColumns={{ base: "1fr", md: "1fr 1fr", lg: "1fr 1fr 1fr 1fr" }}
-        gap={6}
-        mb={8}
-      >
-        <TotalScansCard />
-        <CriticalHighCard vulnerabilityCounts={vulnerabilityCounts} />
-        <MediumCard vulnerabilityCounts={vulnerabilityCounts} />
-        <LowCard vulnerabilityCounts={vulnerabilityCounts} />
-      </Grid> */}
-
-      {/* Quick Scan Section */}
       <Card mb={8}>
         <CardHeader>
           <Heading as="h3" size="lg">
@@ -135,55 +142,53 @@ const Dashboard = () => {
         </CardBody>
       </Card>
 
-      {/* Display site info below Quick Scan */}
       {error && (
         <Box mb={8} p={4} bg="red.100" color="red.700" borderRadius="md">
           {error}
         </Box>
       )}
 
-      {siteData && (
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} mb={8}>
-          {/* IP Info */}
-          <IPInfoCard siteData={siteData} />
-          {/* DNS Info */}
-          <DNSCard siteData={siteData} />
-          {/* Server Info */}
-          <ServerInfoCard siteData={siteData} />
-          {/* Open Ports */}
-          <OpenPortsCard siteData={siteData} />
-          {/* Whois */}
-          <WhoisCard siteData={siteData} />
-          {/* General Info */}
-          <GeneralInfoCard siteData={siteData} />
-        </SimpleGrid>
+      {reconData && (
+        <>
+          <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6} mb={8}>
+            <IPInfoCard siteData={reconData} />
+            <DNSCard siteData={reconData} />
+            <ServerInfoCard siteData={reconData} />
+            <OpenPortsCard siteData={reconData} />
+            <WhoisCard siteData={reconData} />
+            <GeneralInfoCard siteData={reconData} />
+          </SimpleGrid>
+        </>
       )}
 
-      {/* section for sql in xss  */}
       <SQLInjection />
       <XSSInjection />
 
-      {/* Scan History Section */}
-      {/* <Box mb={8}>
-        <VStack spacing={4} align="start" mb={4}>
-          <Heading as="h2" size="lg" fontWeight="bold">
-            Scan History
-          </Heading>
-          <Box position="relative" width="100%">
-            <Input
-              placeholder="Search scans..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              size="lg"
-              pl={10}
-            />
-            <Box position="absolute" top={2} left={2} pointerEvents="none">
-              <Search size={20} color={useColorModeValue("gray.500", "gray.300")} />
-            </Box>
-          </Box>
-        </VStack>
-        I will replace this with actual table when functionality is added
-      </Box> */}
+      {(reconData && sqlScanResult && xssScanResult) && (
+        <Box mb={8}>
+          <VStack spacing={4} align="start">
+            <Heading as="h2" size="lg">
+              AI Summary Report
+            </Heading>
+            <Button
+              colorScheme="teal"
+              isLoading={generatingSummary}
+              onClick={handleGenerateSummary}
+              isDisabled={generatingSummary || !reconData}
+            >
+              Generate Summary
+            </Button>
+            {summaryFile && (
+              <a href={summaryFile} download="security_summary.md">
+                <Button variant="outline" colorScheme="green">
+                  Download Summary
+                </Button>
+              </a>
+            )}
+          </VStack>
+        </Box>
+      )}
+
     </Box>
   );
 };

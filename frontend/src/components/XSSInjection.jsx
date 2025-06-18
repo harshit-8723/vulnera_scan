@@ -5,22 +5,23 @@ import {
     Text, List, ListItem, useColorModeValue,
 } from "@chakra-ui/react";
 import { scanXSSInjection } from "../api/getInfo";
+import { useScanData } from "../context/ScanDataContext";
+
 
 const XSSInjection = () => {
     const [url, setUrl] = useState("");
-    const [results, setResults] = useState(null);
+    const { xssScanResult, setXSSScanResult } = useScanData();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
     const handleScan = async () => {
         setLoading(true);
         setError("");
-        setResults(null);
 
         try {
             const response = await scanXSSInjection(url);
             // console.log(response);
-            setResults(response);
+            setXSSScanResult(response);
         } catch (err) {
             setError("Failed to scan the URL for XSS.");
         } finally {
@@ -42,11 +43,11 @@ const XSSInjection = () => {
                 </Button>
                 {error && <Text color="red.500">{error}</Text>}
 
-                {results && (
+                {xssScanResult && (
                     <Box w="full" bg="whiteAlpha.100" p={4} borderRadius="md">
-                        <Text fontWeight="bold">Target URL: {results.url}</Text>
+                        <Text fontWeight="bold">Target URL: {xssScanResult.url}</Text>
                         <List spacing={3} mt={2}>
-                            {results.results.map((r, idx) => (
+                            {xssScanResult.results.map((r, idx) => (
                                 <ListItem key={idx}>
                                     <Text><strong>Scanned URL:</strong> {r.url}</Text>
                                     <Text><strong>Payload:</strong> <code>{r.payload}</code></Text>

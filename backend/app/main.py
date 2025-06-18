@@ -1,6 +1,5 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.models.requests import WebsiteInput
 from app.services.crawler import CustomCrawler
 from app.helper.query_url_filter import filter_query_urls
 from app.services.sql_scanner import sql_vulnerability_scan
@@ -9,6 +8,11 @@ from urllib.parse import urlparse
 from app.helper.gather_recon_info import gather_recon_info
 import logging
 from typing import Dict
+from fastapi.responses import PlainTextResponse
+from app.helper.summary_generator import generate_summary_ai
+from app.models.requests import SummaryRequest
+from fastapi.responses import StreamingResponse
+from io import BytesIO
 
 # Configure logging
 logging.basicConfig(
@@ -25,6 +29,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 origins = [
     "http://localhost:5173", 
+    "http://localhost:3000",
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -122,3 +127,39 @@ async def get_info(url: str):
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+
+@app.post("/api/generate_summary")
+async def generate_summary(payload: SummaryRequest):
+    logger.info(f"Received summary payload: {payload.model_dump()}")
+
+    try:
+        full_data = {
+            "recon": payload.reconData.model_dump(),
+            "sql": {
+                "url": payload.sqlScanResult.url,
+                "results": [r.model_dump() for r in payload.sqlScanResult.results]
+            },
+            "xss": {
+                "url": payload.xssScanResult.url,
+                "results": [r.model_dump() for r in payload.xssScanResult.results]
+            }
+        }
+
+        logger.info(f"Full data is : {full_data}")
+
+        summary_text = await generate_summary_ai(full_data)
+        logger.info(f"Received information from google gemini api : {summary_text}")
+
+        # Convert to markdown file and return
+        md_file = BytesIO(summary_text.encode("utf-8"))
+        return StreamingResponse(
+            md_file,
+            media_type="text/markdown",
+            headers={"Content-Disposition": "attachment; filename=security_summary.md"}
+        )
+
+    except Exception as e:
+        logger.error(f"Error in /api/generate_summary: {str(e)}")
+        return PlainTextResponse(content=str(e), status_code=500)
